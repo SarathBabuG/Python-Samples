@@ -75,11 +75,8 @@ def httpRequest(url, data=None, headers={}, user=None, passwd=None, handlers=set
     except urllib2.HTTPError, emsg:
         return False, emsg.read()
     except urllib2.URLError, emsg:
-        return False, emsg.read()
+        return False, emsg.reason
     except Exception, emsg:
-        try:
-            return False, emsg.read()
-        except:
-            return False, str(emsg)
+        return False, str(emsg)
 
 
