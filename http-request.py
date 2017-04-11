@@ -30,7 +30,9 @@ def allow_tls_only_context():
     try:
         import ssl
         encrption_protocol = ssl.PROTOCOL_TLSv1
-        if sys.version_info >= (2, 7, 13):
+        python_version = sys.version_info
+        if (python_version[0] == 2 and python_version >= (2,7,13)) or (python_version[0] == 3 and python_version >= (3,6)):
+            encrption_protocol = ssl.PROTOCOL_TLS
             encrption_protocol = ssl.PROTOCOL_TLS
 
         context = ssl.SSLContext(encrption_protocol)
