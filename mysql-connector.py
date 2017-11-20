@@ -2,9 +2,9 @@ import sys, json, base64
 import MySQLdb
 
 db_host   = "localhost"
-db_name   = "msp"
-db_user   = "msp"
-db_passwd = "bXNw"
+db_name   = "database"
+db_user   = "user"
+db_passwd = "password_base64_encrypted"
 
 dbconn = None
 
