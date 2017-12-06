@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+#
+#@---------------------------------------------------
+#@ History
+#@---------------------------------------------------
+#@ Date   : 01 December, 2017
+#@ Author : Sarath G
+#@ Reason : Initial release
+#@---------------------------------------------------
+#@ Date   : 
+#@ Author : 
+#@ Reason : 
+#@---------------------------------------------------
+#
+from urllib.request import urlopen, install_opener, build_opener, Request, ProxyHandler
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlencode
+import os, sys, json
+
+connection    = 'direct'
+proxy_server  = ''
+proxy_port    = ''
+proxy_user    = None
+proxy_passwd  = None
+
+
+def disable_cert_check_context():
+    try:
+        import ssl
+        context = ssl.create_default_context()
+        context.check_hostname = False
+        context.verify_mode    = ssl.CERT_NONE
+        return context
+    except:
+        return None
+
+
+def allow_tls_only_context():
+    try:
+        import ssl
+        encryption_protocol = ssl.PROTOCOL_TLSv1
+        python_version = sys.version_info
+        if (python_version[0] == 2 and python_version >= (2,7,13)) or (python_version[0] == 3 and python_version >= (3,6)):
+            encryption_protocol = ssl.PROTOCOL_TLS
+        
+        context = ssl.SSLContext(encryption_protocol)
+        context.options |= ssl.OP_NO_SSLv2
+        context.options |= ssl.OP_NO_SSLv3
+        return context
+    except:
+        return None
+
+
+def httpRequest(url, data=None, headers={}, user=None, passwd=None, handlers=set()):
+    try:
+        if data:
+            data = data.encode()
+        
+        http_headers = {
+            'Content-Type' : 'application/json',
+            'Accept'       : 'text/html, */*',
+        }
+        http_headers.update(headers)
+        req = Request(url, data, http_headers)
+        
+        if connection != 'direct' and proxy_server != '' and proxy_port != '':
+            if proxy_user and proxy_passwd:
+                proxy_url = "http://%s:%s@%s:%s" % (proxy_user, proxy_passwd, proxy_server, proxy_port)
+            else:
+                proxy_url = "http://%s:%s" % (proxy_server, proxy_port)
+            proxy_handler = ProxyHandler({'http': proxy_url, 'https': proxy_url})
+            install_opener(build_opener(proxy_handler))
+        
+        if handlers:
+            install_opener(build_opener(*handlers))
+        
+        if sys.version_info >= (3, 4, 3):
+            #return urlopen(req, context=allow_tls_only_context(), timeout=30).read()
+            return urlopen(req, context=disable_cert_check_context(), timeout=30).read()
+        else:
+            return urlopen(req, timeout=30).read()
+    except HTTPError, emsg:
+        return False, emsg.read()
+    except URLError, emsg:
+        return False, emsg.reason
+    except Exception, emsg:
+        return False, str(emsg)
