@@ -52,7 +52,7 @@ def sendmail(subject, html_description, attachments=None):
     s.quit()
     
     
-    html_description = ""
-    attachments = []
-    sendmail("Subject1", html_description, attachments)
+html_description = ""
+attachments = []
+sendmail("Subject1", html_description, attachments)
     
